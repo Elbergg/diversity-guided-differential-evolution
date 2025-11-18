@@ -54,7 +54,7 @@ def de_dg(psize: int, pdim: int, dlow: float, dhigh: float, cross_prob: float, t
                 work_pop[i] = mutant
         og_pop = work_pop
     grades = grade(og_pop, target_func)
-    return og_pop[np.argmin(grades)]
+    return og_pop[np.argmax(grades)]
 
 
 
