@@ -1,6 +1,6 @@
 import random
 from enum import Enum
-
+from typing import Callable
 import numpy as np
 from ev_alg import init_pop
 
@@ -8,20 +8,26 @@ class Mode(Enum):
     EXPLORATION = 0,
     EXPLOITATION = 1
 
-def diversity(pop: np.ndarray[int]) -> float:
-    pass
 
-def sample(pop: np.ndarray[int], i: int) -> np.ndarray[int]:
+
+
+def diversity(pop: np.ndarray[float], upper_bounds: np.ndarray[float], lower_bounds: np.ndarray[float]) -> float:
+    L = np.linalg.norm(upper_bounds - lower_bounds)
+    avg= np.mean(pop)
+
+    return 1/(L*len(pop))*np.sqrt(np.sum(np.square(np.subtract(pop,avg)))) #is this correct? i have no idea
+
+def sample(pop: np.ndarray[float], i: float) -> np.ndarray[float]:
     return np.random.choice(pop, size=1, p=[1 if j != i else 0 for j in pop])
 
 
-def grade() -> float:
-    pass
+def grade(el: np.ndarray[float], target_func: Callable) -> float:
+    return target_func(el)
 
-def F(x1: np.ndarray[int],x2: np.ndarray[int])->np.ndarray[int]:
+def F(x1: np.ndarray[int],x2: np.ndarray[float])->np.ndarray[float]:
     return np.sum(x1 - x2)
 
-def de_dg(psize: int, pdim: int, dlow: float, dhigh: float, cross_prob: float) -> np.ndarray[int]:
+def de_dg(psize: int, pdim: int, dlow: float, dhigh: float, cross_prob: float, target_func: Callable, search_space_upper_bounds: np.ndarray[float], search_space_lower_bounds: np.ndarray[float]) -> np.ndarray[float]:
     og_pop = init_pop(psize, pdim)
     t = 0
     mode = Mode.EXPLORATION
@@ -39,7 +45,7 @@ def de_dg(psize: int, pdim: int, dlow: float, dhigh: float, cross_prob: float) -
                 for j in range(pdim):
                     if random.random() < cross_prob:
                         c[j] = pw[j]
-                if grade(c) > grade(p1):
+                if grade(c, target_func) > grade(p1, target_func):
                     work_pop[i] = c
             else:
                 x1 = sample(work_pop, i)
