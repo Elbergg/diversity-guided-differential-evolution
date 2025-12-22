@@ -68,8 +68,8 @@ def de_dg(
                 upper_bounds=search_space_upper_bounds,
                 lower_bounds=search_space_lower_bounds,
             )
-            if debug:
-                print(current_diversity)
+            # if debug:
+            #     print(current_diversity)
             if current_diversity < dlow:
                 if mode != Mode.EXPLORATION and debug:
                     print(
@@ -88,11 +88,14 @@ def de_dg(
 
             if mode == Mode.EXPLOITATION:
                 c1, c2 = sample(work_pop, 2, i)
+                z = np.zeros_like(c1)
                 for j in range(pdim):
                     if np.random.uniform(0, 1) < cross_prob:
-                        c1[j] = c2[j]
-                if grade(c1, target_func) < grade(p_i, target_func):
-                    work_pop[i] = c1
+                        z[j] = c1[j]
+                    else:
+                        z[j] = c2[j]
+                if grade(z, target_func) < grade(p_i, target_func):
+                    work_pop[i] = z
             else:
                 x1, x2, x3 = sample(work_pop, 3, i)
                 mutant = x3 + F * (x1 - x2)
