@@ -40,10 +40,6 @@ def grade(el: np.ndarray[float], target_func: Callable) -> np.ndarray[float]:
     return target_func(el)
 
 
-# def F(x1: np.ndarray[float], x2: np.ndarray[float]) -> np.ndarray[float]:
-#     return np.sum(x1, x2)
-
-
 def de_dg(
     target_func: Callable,
     psize: int,
@@ -54,55 +50,62 @@ def de_dg(
     search_space_upper_bounds: np.ndarray[float],
     search_space_lower_bounds: np.ndarray[float],
     max_iter: int,
-    F: int,
+    F: float,
+    debug: bool = False,
 ) -> np.ndarray[float]:
-    og_pop = init_pop(psize, pdim)
+    og_pop = init_pop(
+        psize, pdim, search_space_lower_bounds, search_space_upper_bounds
+    )
     t = 0
-    mode = Mode.EXPLORATION
+    mode = Mode.EXPLOITATION
     while t < max_iter:
         work_pop = og_pop.copy()
-        # print(
-        #     diversity(
-        #         work_pop,
-        #         upper_bounds=search_space_upper_bounds,
-        #         lower_bounds=search_space_lower_bounds,
-        #     )
-        # )
+
         for i in range(psize):
-            if (
-                diversity(
-                    work_pop,
-                    upper_bounds=search_space_upper_bounds,
-                    lower_bounds=search_space_lower_bounds,
-                )
-                < dlow
-            ):
+            #mode switching
+            current_diversity = diversity(
+                work_pop,
+                upper_bounds=search_space_upper_bounds,
+                lower_bounds=search_space_lower_bounds,
+            )
+            if debug:
+                print(current_diversity)
+            if current_diversity < dlow:
+                if mode != Mode.EXPLORATION and debug:
+                    print(
+                        f"Switching to EXPLORATION at t={t} (Div: {current_diversity:.8f})"
+                    )
                 mode = Mode.EXPLORATION
-            elif (
-                diversity(
-                    work_pop,
-                    upper_bounds=search_space_upper_bounds,
-                    lower_bounds=search_space_lower_bounds,
-                )
-                > dhigh
-            ):
+            elif current_diversity > dhigh:
+                if mode != Mode.EXPLOITATION and debug:
+                    print(
+                        f"Switching to EXPLOITATION at t={t} (Div: {current_diversity:.8f})"
+                    )
                 mode = Mode.EXPLOITATION
-            # print(mode)
+
+            # actual work
+            p_i = work_pop[i]
+
             if mode == Mode.EXPLOITATION:
-                p1 = work_pop[i]
-                pw = sample(work_pop, 1, i)[0]
-                c = p1.copy()
+                c1, c2 = sample(work_pop, 2, i)
                 for j in range(pdim):
                     if np.random.uniform(0, 1) < cross_prob:
-                        c[j] = pw[j]
-                if grade(c, target_func) < grade(p1, target_func):
-                    work_pop[i] = c
+                        c1[j] = c2[j]
+                if grade(c1, target_func) < grade(p_i, target_func):
+                    work_pop[i] = c1
             else:
-                x1, x2 = sample(work_pop, 2, i)
-                mutant = work_pop[i] + F * (x1 - x2)
-                work_pop[i] = mutant
+                x1, x2, x3 = sample(work_pop, 3, i)
+                mutant = x3 + F * (x1 - x2)
+                mutant = np.clip(
+                    mutant,
+                    search_space_lower_bounds,
+                    search_space_upper_bounds,
+                )
+                if grade(mutant, target_func) < grade(p_i, target_func):
+                    work_pop[i] = mutant
+
         og_pop = work_pop
         t += 1
-    # grades = grade(og_pop, target_func)
-    grades = np.apply_along_axis(grade, 1, og_pop, target_func)
+    grades = [grade(x, target_func) for x in og_pop]
     return og_pop[np.argmin(grades)]
+

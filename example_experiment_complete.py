@@ -38,10 +38,10 @@ import de
 
 ### input: define suite and solver (see also "input" below where fmin is called)
 suite_name = "bbob"  # filter for preliminary quick tests:
-suite_filter = "dimensions: 2,3,5 instance_indices:1-5"    # "dimensions: 2,3,5,10,20 instance_indices:1-5"
+suite_filter = "dimensions:2,3,5 instance_indices:1"    # "dimensions: 2,3,5,10,20 instance_indices:1-5"
 # fmin = scipy.optimize.fmin  # optimizer to be benchmarked
-# fmin = scipy.optimize.differential_evolution
-fmin = de.de_dg
+fmin = scipy.optimize.differential_evolution
+# fmin = de.de_dg
 
 ### reading in parameters
 if __name__ == '__main__':
@@ -93,21 +93,26 @@ while not repeater.done():  # while budget is left and successes are few
             xopt = res.x
             final_condition = (res.message, res.success)
         elif fmin == de.de_dg:
-            res = fmin(problem, psize=10*problem.dimension, pdim=problem.dimension,
-                       dlow=5*10^(-6), dhigh=3*10^(-6), cross_prob=0.7, search_space_lower_bounds=problem.lower_bounds,
+            res = fmin(problem, psize=15*problem.dimension, pdim=problem.dimension,
+                       dlow=0.0002, dhigh=0.25, cross_prob=0.7, search_space_lower_bounds=problem.lower_bounds,
                        search_space_upper_bounds=problem.upper_bounds,
-                       max_iter=int(budget_multiplier * 10 * problem.dimension), F=0.5)
+                       max_iter=int(budget_multiplier * 50 * problem.dimension), F=0.7)
             xopt = res
             final_condition = None
         else:
             raise ValueError('case for fmin={} not found'.format(fmin))
 
         problem(xopt)  # make sure the returned solution is evaluated
+        if (problem.final_target_hit):
+            print(f"Function: {problem.id_function}")
+            print(f"Best solution found: {xopt}")
+            print(f"Best value found: {problem.best_observed_fvalue1}")
+            print(f"Target value hit: {problem.final_target_hit}")
 
         if repeater._sweeps == 1:  # time only the first (full) sweep through suite
             timings[problem.dimension].append((time.time() - time1) / problem.evaluations)
         repeater.track(problem)  # track evaluations and final_target_hit
-        minimal_print(problem)  # show progress
+        # minimal_print(problem)  # show progress
         final_conditions[problem.id_triple].append(repr([problem.evaluations, final_condition]))
         with open(observer.result_folder + '/final_conditions.pydict', 'wt') as file_:
             file_.write(str(dict(final_conditions)).replace('],', '],\n'))
