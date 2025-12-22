@@ -1,20 +1,29 @@
 import cocoex  # experimentation module
 import cocopp
 
-from de import de_dg
+import de
 
 ### input
 suite_name = "bbob"
-fmin = de_dg  # optimizer to be benchmarked
+fmin = de.de_dg  # optimizer to be benchmarked
 budget_multiplier = 5  # x dimension, increase to 3, 10, 30,...
+
+F = 0.5
+dlow = 0.05
+dhigh = 0.15
+cr = 0.5
+psize_multiplier = 15
+budget_multiplier_2 = 40
 
 ### prepare
 suite = cocoex.Suite(
-    suite_name, "", "dimensions:2,3 instance_indices:1"
+    suite_name, "", "dimensions:2,3,5,10 instance_indices:1-5"
 )  # see https://numbbo.github.io/coco-doc/C/#suite-parameters
-output_folder = "{}_of_{}_{}D_on_{}".format(
-    fmin.__name__, fmin.__module__ or "", int(budget_multiplier), suite_name
+output_folder = (
+    f"{fmin.__name__}_{fmin.__module__}_IN_F={F}_dlow={dlow}_dhigh={dhigh}_"
+    f"cr={cr}_psize={psize_multiplier}_bm2={budget_multiplier_2}of_{int(budget_multiplier)}D_on_{suite_name}"
 )
+
 observer = cocoex.Observer(suite_name, "result_folder: " + output_folder)
 repeater = cocoex.ExperimentRepeater(budget_multiplier)  # 0 == no repetitions
 minimal_print = cocoex.utilities.MiniPrint()
@@ -28,25 +37,22 @@ while not repeater.done():  # while budget is left and successes are few
         problem(problem.dimension * [0])  # for better comparability
         xopt = fmin(
             problem,
-            psize=15 * problem.dimension,
+            psize=psize_multiplier * problem.dimension,
             pdim=problem.dimension,
-            dlow=0.0002,
-            dhigh=0.25,
-            cross_prob=0.5,
+            dlow=dlow,
+            dhigh=dhigh,
+            cross_prob=cr,
             search_space_lower_bounds=problem.lower_bounds,
             search_space_upper_bounds=problem.upper_bounds,
-            max_iter=int(budget_multiplier * 20 * problem.dimension),
-            F=0.5,
-            debug=True,
+            max_iter=int(
+                budget_multiplier * budget_multiplier_2 * problem.dimension
+            ),  # TODO: think of sth more clever then multiypling by dimension
+            F=F,
+            debug=False,
         )
         problem(xopt)  # make sure the returned solution is evaluated
         repeater.track(problem)  # track evaluations and final_target_hit
         minimal_print(problem)  # show progress
 
-
-        # print(f"Function: {problem.id_function}")
-        # print(f"Best solution found: {xopt}")
-        # print(f"Best value found: {problem.best_observed_fvalue1}")
-        # print(f"Target value hit: {problem.final_target_hit}")
 ### post-process data
 cocopp.main(observer.result_folder)  # re-run folders look like "...-001" etc

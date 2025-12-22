@@ -62,14 +62,11 @@ def de_dg(
         work_pop = og_pop.copy()
 
         for i in range(psize):
-            #mode switching
             current_diversity = diversity(
                 work_pop,
                 upper_bounds=search_space_upper_bounds,
                 lower_bounds=search_space_lower_bounds,
             )
-            # if debug:
-            #     print(current_diversity)
             if current_diversity < dlow:
                 if mode != Mode.EXPLORATION and debug:
                     print(
@@ -111,4 +108,3 @@ def de_dg(
         t += 1
     grades = [grade(x, target_func) for x in og_pop]
     return og_pop[np.argmin(grades)]
-
