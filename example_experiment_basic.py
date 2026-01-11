@@ -1,3 +1,4 @@
+import mkl_bugfix  # noqa: F401 isort: skip
 import cocoex  # experimentation module
 import cocopp
 
@@ -46,9 +47,10 @@ while not repeater.done():  # while budget is left and successes are few
             search_space_upper_bounds=problem.upper_bounds,
             max_iter=int(
                 budget_multiplier * budget_multiplier_2 * problem.dimension
-            ),  # TODO: think of sth more clever then multiypling by dimension
+            ),
             F=F,
             debug=False,
+            seed=110
         )
         problem(xopt)  # make sure the returned solution is evaluated
         repeater.track(problem)  # track evaluations and final_target_hit

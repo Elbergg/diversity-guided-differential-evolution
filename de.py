@@ -3,12 +3,21 @@ from typing import Callable
 
 import numpy as np
 
-from ev_alg import init_pop
-
 
 class Mode(Enum):
     EXPLORATION = 0
     EXPLOITATION = 1
+
+
+def init_pop(
+    psize: int,
+    pdim: int,
+    low: np.ndarray,
+    high: np.ndarray,
+    rng: np.random.Generator,
+):
+    pop = rng.uniform(low, high, size=(psize, pdim))
+    return pop
 
 
 def diversity(
@@ -26,11 +35,11 @@ def diversity(
 
 
 def sample(
-    pop: np.ndarray[float], sample_size: int, i: int
+    pop: np.ndarray[float], sample_size: int, i: int, rng: np.random.Generator
 ) -> np.ndarray[float]:
     indices = np.arange(len(pop))
     available_indices = np.delete(indices, i)
-    chosen_indices = np.random.choice(
+    chosen_indices = rng.choice(
         available_indices, size=sample_size, replace=False
     )
     return pop[chosen_indices]
@@ -52,9 +61,12 @@ def de_dg(
     max_iter: int,
     F: float,
     debug: bool = False,
+    seed: int = 110,
 ) -> np.ndarray[float]:
+    rng = np.random.default_rng(seed)
+
     og_pop = init_pop(
-        psize, pdim, search_space_lower_bounds, search_space_upper_bounds
+        psize, pdim, search_space_lower_bounds, search_space_upper_bounds, rng
     )
     t = 0
     mode = Mode.EXPLOITATION
@@ -80,21 +92,20 @@ def de_dg(
                     )
                 mode = Mode.EXPLOITATION
 
-            # actual work
             p_i = work_pop[i]
 
             if mode == Mode.EXPLOITATION:
-                c1, c2 = sample(work_pop, 2, i)
+                c1, c2 = sample(work_pop, 2, i, rng)
                 z = np.zeros_like(c1)
                 for j in range(pdim):
-                    if np.random.uniform(0, 1) < cross_prob:
+                    if rng.uniform(0, 1) < cross_prob:
                         z[j] = c1[j]
                     else:
                         z[j] = c2[j]
                 if grade(z, target_func) < grade(p_i, target_func):
                     work_pop[i] = z
             else:
-                x1, x2, x3 = sample(work_pop, 3, i)
+                x1, x2, x3 = sample(work_pop, 3, i, rng)
                 mutant = x3 + F * (x1 - x2)
                 mutant = np.clip(
                     mutant,

@@ -4,6 +4,7 @@ import subprocess
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run cocopp in batches")
 
+    parser.add_argument("algorithms", type=str, choices=["scipy_de", "de_dg"])
     parser.add_argument("budget_multiplier", type=float)
     parser.add_argument("number_of_batches", type=int)
 
@@ -15,6 +16,7 @@ if __name__ == "__main__":
             [
                 "python",
                 "example_experiment_complete.py",
+                args.algorithms,
                 str(args.budget_multiplier),
                 str(args.number_of_batches),
                 str(i),

@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "coco-experiment>=2.8.2",
     "cocopp>=2.8.2",
+    "mkl-service>=2.6.1",
     "numpy>=2.3.5",
     "scipy>=1.16.3",
 ]

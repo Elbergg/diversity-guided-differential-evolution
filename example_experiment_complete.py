@@ -3,9 +3,11 @@
 
 Arguments
 ---------
-This script must be called with 1-3 arguments:
+This script must be called with 2-3 arguments:
 
-    budget_multiplier [number_of_batches batch_to_execute]
+    algorithm budget_multiplier [number_of_batches batch_to_execute]
+
+``algorithm`` name of the algorithm to be benchamarke either 'scipy_de' or 'de_dg'
 
 ``budget_multiplier`` times dimension is the budget within which problem
 instances are run repeatedly as long as too few successes are observed.
@@ -30,18 +32,18 @@ __copyright__ = "public domain"
 import collections
 import time
 
-import cocoex  # experimentation module
+import mkl_bugfix  # noqa: F401 isort: skip
+
+import cocoex
+import numpy as np
 import scipy
 
 import de
-
-# scipy = cocoex.utilities.forgiving_import('scipy')  # solvers to benchmark
 
 ### input: define suite and solver (see also "input" below where fmin is called)
 suite_name = "bbob"  # filter for preliminary quick tests:
 # suite_filter = "dimensions:2,3,5,10,20 instance_indices:1-5"    # "dimensions: 2,3,5,10,20 instance_indices:1-5"
 suite_filter = "dimensions:2,3,5,10,20"
-# fmin = scipy.optimize.fmin  # optimizer to be benchmarked
 # fmin = scipy.optimize.differential_evolution
 fmin = de.de_dg
 
@@ -50,9 +52,17 @@ if __name__ == "__main__":
     import sys
 
     try:
-        budget_multiplier = float(sys.argv[1])
-        number_of_batches = int(sys.argv[2]) if len(sys.argv) > 2 else 1
-        batch_to_execute = int(sys.argv[3]) if len(sys.argv) > 3 else None
+        algorithm_choice = sys.argv[1].lower()
+        if algorithm_choice not in ["scipy_de", "de_dg"]:
+            raise ValueError("algorithm must be 'scipy_de' or 'de_dg'")
+        budget_multiplier = float(sys.argv[2])
+        number_of_batches = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+        batch_to_execute = int(sys.argv[4]) if len(sys.argv) > 4 else None
+
+        if algorithm_choice == "scipy_de":
+            fmin = scipy.optimize.differential_evolution
+        else:
+            fmin = de.de_dg
     except Exception as e:
         print(
             "Exception {} with calling arguments {}\n\n".format(e, sys.argv)
@@ -121,6 +131,7 @@ while not repeater.done():  # while budget is left and successes are few
                 popsize=10,
                 mutation=0.5,
                 recombination=0.5,
+                rng=np.random.default_rng(110),
             )
             xopt = res.x
             final_condition = (res.message, res.success)
@@ -136,6 +147,7 @@ while not repeater.done():  # while budget is left and successes are few
                 search_space_upper_bounds=problem.upper_bounds,
                 max_iter=int(budget_multiplier * 50 * problem.dimension),
                 F=0.5,
+                seed=110,
             )
             xopt = res
             final_condition = None
