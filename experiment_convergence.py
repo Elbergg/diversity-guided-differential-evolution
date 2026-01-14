@@ -13,7 +13,7 @@ def create_convergence_chart(data, labels=['de_dg', 'scikit_de'], colors=['blue'
         plt.plot(iters, vals, label=label, color=color)
         plt.fill_between(iters, vals-std, vals+std,
                          alpha=0.15, color=color,
-                         label='±1 Standard Deviation')
+                         label='± std')
         plt.plot(iters, vals-std, 'b--', alpha=0.5, linewidth=1)
         plt.plot(iters, vals+std, 'b--', alpha=0.5, linewidth=1)
     plt.title("Convergence on sphere function in dimension 5")
