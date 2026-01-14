@@ -43,9 +43,7 @@ import de
 ### input: define suite and solver (see also "input" below where fmin is called)
 suite_name = "bbob"  # filter for preliminary quick tests:
 # suite_filter = "dimensions:2,3,5,10,20 instance_indices:1-5"    # "dimensions: 2,3,5,10,20 instance_indices:1-5"
-suite_filter = "dimensions:2,3,5,10,20"
-# fmin = scipy.optimize.differential_evolution
-fmin = de.de_dg
+suite_filter = ""
 
 ### reading in parameters
 if __name__ == "__main__":
@@ -127,8 +125,8 @@ while not repeater.done():  # while budget is left and successes are few
                     problem.lower_bounds, problem.upper_bounds
                 ),
                 strategy="rand1bin",
-                maxiter=int(budget_multiplier * 10 * problem.dimension),
-                popsize=10,
+                maxiter=int(budget_multiplier * 50 * problem.dimension),
+                popsize=15,
                 mutation=0.5,
                 recombination=0.5,
                 rng=np.random.default_rng(110),
