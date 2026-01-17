@@ -35,7 +35,7 @@ def gather_data(fun):
     cr = 0.5
     psize_multiplier = 15
     suite = cocoex.Suite(
-        suite_name, "", f"dimensions:{dimension} function_indices:1 instance_indices:1-10"
+        suite_name, "", f"dimensions:{dimension} function_indices:1 instance_indices:1-15"
     )
 
     output_folder = (
