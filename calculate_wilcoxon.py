@@ -92,12 +92,12 @@ for dim in dimensions:
     row = {
         "Dimension": dim,
         "Num_Functions": len(scipy_func_vals),
-        "Scipy_Median": np.median(scipy_func_vals),
-        "DE_DG_Median": np.median(dedg_func_vals),
+        "Scipy_Median": f"{np.median(scipy_func_vals):<15.2e}",
+        "DE_DG_Median": f"{np.median(dedg_func_vals):<15.2e}",
         "Wins": wins,
         "Ties": ties,
         "Losses": losses,
-        "P_Value": p_val,
+        "P_Value": f"{p_val:.4f}",
         "Significant": "Yes" if (p_val < 0.05) else "No",
     }
     csv_data.append(row)
