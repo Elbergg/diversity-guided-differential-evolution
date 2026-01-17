@@ -5,7 +5,8 @@ from matplotlib import pyplot as plt
 import scipy
 import numpy as np
 
-def create_convergence_chart(data, labels=['de_dg', 'scikit_de'], colors=['blue', 'orange']):
+def create_convergence_chart(data, labels=['de_dg', 'scipy_de'], colors=['blue', 'orange']):
+    plt.figure(figsize=(12, 8), dpi=150)
     for fun, label, color in zip(data, labels, colors):
         iters = list(range(1, len(fun[0].funvals) + 1))
         vals = np.mean(fun[0].funvals[:,1:],axis=1)
