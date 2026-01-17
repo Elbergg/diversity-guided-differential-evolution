@@ -16,8 +16,8 @@ python ./run_experiment_in_batches.py scipy_de 5 4
 python ./run_experiment_in_batches.py de_dg 5 4
 
 # Wyniki z poszczególnych batch należy przetworzyć, podając wzór nazw folderów z wynikami oraz nazwę folder gdzie dane zostaną zapisane (poniżej przykładowe nazwy)
-python ./merge_and_process_batches.py "exdata/differential_evolution_of_scipy.optimize._differentialevolution_5D_on_bbob_batch*of4" exdata/scipy_full
-python ./merge_and_process_batches.py "exdata/de_df_of_de_5D_on_bbob_batch*of4" exdata/de_dg_full
+python ./merge_and_process_batches.py "exdata/differential_evolution_of_scipy.optimize._differentialevolution_5D_on_bbob_batch*of4" exdata/de_scipy_5D_full_seeded
+python ./merge_and_process_batches.py "exdata/de_df_of_de_5D_on_bbob_batch*of4" exdata/de_dg_of_de_5D_on_bbob_batch_full_all_dim_seeded
 
 # Porówananie algorytmów przy pomocy cocopp
 python -m cocopp exdata/scipy_full exdata/de_dg_full
