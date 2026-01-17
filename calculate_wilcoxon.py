@@ -98,7 +98,6 @@ for dim in dimensions:
         "Ties": ties,
         "Losses": losses,
         "P_Value": f"{p_val:.4f}",
-        "Significant": "Yes" if (p_val < 0.05) else "No",
     }
     csv_data.append(row)
 
