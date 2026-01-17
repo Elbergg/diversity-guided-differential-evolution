@@ -28,3 +28,21 @@ python -m cocopp exdata/scipy_full exdata/de_dg_full
 ```bash
 python ./experiment_convergence.py
 ```
+
+## Wilcoxon
+
+W skrypcie należy zmienić nazwy folderów z danymi na te wygenerowane w skrypce `./merge_and_process_batches.py`:
+
+```python
+# Trzeba zmienić tutaj
+ds_scipy = cocopp.load2("exdata/de_scipy_5D_full_seeded")
+ds_de_dg = cocopp.load2(
+    "exdata/de_dg_of_de_5D_on_bbob_batch_full_all_dim_seeded"
+)
+```
+
+Uruchomienie:
+
+```bash
+python ./calculate_wilcoxon.py
+```
