@@ -2,7 +2,7 @@
 
 A modified **DE/rand/1/bin** that monitors population diversity and switches between exploration and exploitation to counter premature convergence. It is benchmarked against `scipy.optimize.differential_evolution` on the [COCO/BBOB](https://coco-platform.org/testsuites/bbob/overview.html) suite and is further evaluated through a convergence study.
 
-The algorithm is implemented in [`de.py`](de.py). In short, the diversity heuristic did not outperform standard DE: SciPy is significantly better in 2D, 3D and 5D, there is no significant difference in 10D, 20D and 40D, and DE-DG is slower because of the diversity computation. Details are in [`wilcoxon_results.csv`](wilcoxon_results.csv) and the project report, available in [English](docs/raport_en.pdf) and [Polish](docs/raport_pl.pdf).
+The algorithm is implemented in [`de.py`](de.py). In short, the diversity heuristic did not outperform standard DE: SciPy is significantly better in 2D, 3D and 5D, there is no significant difference in 10D, 20D and 40D, and DE-DG is slower because of the diversity computation. Details are in [`wilcoxon_results.csv`](wilcoxon_results.csv) and the project report, available in [English](docs/report_en.pdf) and [Polish](docs/report_pl.pdf).
 
 # Running the experiments
 
